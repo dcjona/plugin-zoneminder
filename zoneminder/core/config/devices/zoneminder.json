@@ -1,0 +1,10 @@
+{
+  "commands": [
+    {
+      "name": "Statut",
+      "type": "info",
+      "subtype": "binary",
+      "logicalId": "active"
+    }
+  ]
+}

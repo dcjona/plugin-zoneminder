@@ -1,0 +1,96 @@
+{
+  "commands": [
+    {
+      "name": "Fonction",
+      "type": "info",
+      "subtype": "string",
+      "logicalId": "function"
+    },
+    {
+      "name": "Statut Activation",
+      "type": "info",
+      "subtype": "binary",
+      "logicalId": "active"
+    },
+    {
+      "name": "Activer la caméra",
+      "type": "action",
+      "subtype": "other",
+      "logicalId": "activate",
+      "value": "Statut Activation",
+      "configuration": {
+        "request": "Monitor[Enabled]=1"
+      }
+    },
+    {
+      "name": "Désactiver la caméra",
+      "type": "action",
+      "subtype": "other",
+      "logicalId": "unactivate",
+      "value": "Statut Activation",
+      "configuration": {
+        "request": "Monitor[Enabled]=0"
+      }
+    },
+    {
+      "name": "Fonction Détection",
+      "type": "action",
+      "subtype": "other",
+      "logicalId": "modect",
+      "value": "Fonction",
+      "configuration": {
+        "request": "Monitor[Function]=Modect"
+      }
+    },
+    {
+      "name": "Fonction Caméra",
+      "type": "action",
+      "subtype": "other",
+      "logicalId": "monitor",
+      "value": "Fonction",
+      "configuration": {
+        "request": "Monitor[Function]=Monitor"
+      }
+    },
+    {
+      "name": "Fonction Enregistrement",
+      "type": "action",
+      "subtype": "other",
+      "logicalId": "record",
+      "value": "Fonction",
+      "configuration": {
+        "request": "Monitor[Function]=Record"
+      }
+    },
+    {
+      "name": "Fonction Enregistrement continu avec mouvement",
+      "type": "action",
+      "subtype": "other",
+      "logicalId": "mocord",
+      "value": "Fonction",
+      "configuration": {
+        "request": "Monitor[Function]=Mocord"
+      }
+    },
+    {
+      "name": "Fonction Non-Détection",
+      "type": "action",
+      "subtype": "other",
+      "logicalId": "nodect",
+      "value": "Fonction",
+      "configuration": {
+        "request": "Monitor[Function]=Nodect"
+      }
+    },
+    {
+      "name": "Fonction Select",
+      "type": "action",
+      "subtype": "other",
+      "logicalId": "nodect",
+      "value": "Fonction",
+      "configuration": {
+        "request": "Monitor[Function]=#select#"
+      }
+    }
+  ]
+}

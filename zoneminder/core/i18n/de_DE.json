@@ -1,0 +1,41 @@
+{
+    "plugins\/zoneminder\/plugin_info\/configuration.php": {
+        "Adresse Zoneminder : ": "Zoneminder Adresse :",
+        "Complément d'adresse Zoneminder : ": "Zusätzliche Zoneminder Adresse :",
+        "Utilisateur : ": "Benutzer :",
+        "Mot de passe : ": "Passwort :"
+    },
+    "plugins\/zoneminder\/desktop\/php\/zoneminder.php": {
+        "Rechercher": "Suchen",
+        "Gestion": "Verwaltung",
+        "Configuration": "Konfiguration",
+        "Mes Monitor Zoneminder": "Mein Zoneminder Monitor",
+        "Sauvegarder": "Speichern",
+        "Supprimer": "Löschen",
+        "Configuration avancée": "Erweiterte Konfiguration",
+        "Equipement": "Gerät",
+        "Commandes": "Befehle",
+        "Nom du monitor": "Monitor Name",
+        "Nom de l'équipement zoneminder": "Zoneminder",
+        "Objet parent": "Elternobjekt",
+        "Aucun": "Keine",
+        "Catégorie": "Kategorie",
+        "Activer": "Aktivieren",
+        "Visible": "Sichtbar",
+        "Commentaire": "Kommentar",
+        "ID Monitor": "Monitor ID",
+        "Nom": "Name",
+        "Fonction": "Funktion",
+        "Type": "Typ",
+        "Résolution": "Lösung",
+        "Activé": "Aktivieren",
+        "Valeur": "Wert",
+        "Paramètres": "Parameter"
+    },
+    "plugins\/zoneminder\/desktop\/js\/zoneminder.js": {
+        "Nom de l\\'info": "Info Name",
+        "Historiser": "Archivieren",
+        "Afficher": "Anzeigen",
+        "Tester": "Testen"
+    }
+}

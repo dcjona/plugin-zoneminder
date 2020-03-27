@@ -1,0 +1,13 @@
+{
+	"id" : "zoneminder",
+	"name" : "Zoneminder",
+	"description" : "Permet de récupérer les caméras configurées dans Zoneminder (monitors) en gardant Zoneminder comme point central. Le plugin propose : configuration automatique des monitors dans le plugin Camera afin de récupérer la visu dans Jeedom, informations du mode et statut d'activation, commandes de modification du mode et statut",
+	"licence" : "AGPL",
+	"author" : "lunarok",
+	"require" : "3.3.24",
+	"category" : "security",
+	"language" : ["fr_FR","en_US"],
+	"compatibility" : ["miniplus","smart","rpi","docker","diy","mobile","v4"],
+	"changelog" : "https://lunarok.github.io/jeedom_docs/plugins/zoneminder/changelog.html",
+	"documentation" : "https://lunarok.github.io/jeedom_docs/plugins/zoneminder/"
+}
