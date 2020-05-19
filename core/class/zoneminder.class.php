@@ -20,44 +20,22 @@
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 
 class zoneminder extends eqLogic {
-  //public static $_widgetPossibility = array('custom' => true);
-
   public static function cron30() {
     zoneminder::getSynchro();
   }
 
   public function getSynchro() {
-    if (config::byKey('user','zoneminder', '') == '' || config::byKey('password','zoneminder', '') == '') {
-      return;
-    }
+    $auth = zoneminder::login();
+    if ($auth == false) { return; }
     $addr = config::byKey('addr','zoneminder') . config::byKey('path','zoneminder');
-    $uri = $addr . '/api/monitors.json';
-    $uriapi =  $addr . '/api/host/daemonCheck.json';
-    log::add('zoneminder', 'debug', $uri);
-
-    $post = 'user=' . config::byKey('user','zoneminder') . '&pass=' . config::byKey('password','zoneminder') . '';
-    $loginUrl = $addr . '/api/host/login.json';
+    $uri = $addr . '/api/monitors.json?' . $auth;
+    $uriapi =  $addr . '/api/host/daemonCheck.json?' . $auth;
+    log::add('zoneminder', 'debug', $uri); 
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $loginUrl);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    $json_string = curl_exec($ch);
-
-    log::add('zoneminder', 'debug', $json_string);
-    $parsed_json = json_decode($json_string, true);
-
-    $token = $parsed_json['access_token'];
-    $uri = $uri."?token=$token";
-
-    log::add('zoneminder', 'debug', 'Retour ' . print_r($uri,true));
-
     curl_setopt($ch, CURLOPT_POST, 0);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_URL, $uri);
     $json_string = curl_exec($ch);
-
-    log::add('zoneminder', 'debug', $json_string);
-
     curl_setopt($ch, CURLOPT_URL, $uriapi);
     $json_active = json_decode(curl_exec($ch),true);
     curl_close($ch);
@@ -73,15 +51,16 @@ class zoneminder extends eqLogic {
     }
     $zoneminder->loadCmdFromConf('zoneminder');
     $zoneminder->checkAndUpdateCmd('active',$json_active['result']);
+    log::add('zoneminder', 'debug', 'daemon ' . print_r($json_active, true));
 
     $parsed_json = json_decode($json_string, true);
+    log::add('zoneminder', 'debug', 'monitors ' . print_r($parsed_json, true));
     foreach($parsed_json['monitors'] as $monitor) {
-
-      log::add('zoneminder', 'debug', 'Retour ' . print_r($monitor,true));
-      log::add('zoneminder', 'debug', 'Retour ' . print_r($monitor['Monitor']['Id'],true));
-
+      //log::add('zoneminder', 'debug', 'Retour ' . print_r($monitor,true));
+      //log::add('zoneminder', 'debug', 'Retour ' . print_r($monitor['Monitor']['Id'],true));
       $zoneminder = self::byLogicalId($monitor['Monitor']['Id'], 'zoneminder');
       if (!is_object($zoneminder)) {
+        log::add('zoneminder', 'debug', 'Nouvelle caméra ' . print_r($monitor,true));
         $zoneminder = new zoneminder();
         $zoneminder->setEqType_name('zoneminder');
         $zoneminder->setLogicalId($monitor['Monitor']['Id']);
@@ -144,14 +123,15 @@ class zoneminder extends eqLogic {
     $plugin = plugin::byId('camera');
     $camera_jeedom = eqLogic::byLogicalId('zm'.$deviceid, 'camera');
     if (!is_object($camera_jeedom)) {
+      log::add('zoneminder', 'debug', 'Création dans Caméra ' . $deviceid);
       $camera_jeedom = new camera();
       $camera_jeedom->setDisplay('height', $zoneminder->getConfiguration('height'));
       $camera_jeedom->setDisplay('width', $zoneminder->getConfiguration('width'));
     }
     $camera_jeedom->setName('ZM ' . $zoneminder->getName());
-    $camera_jeedom->setIsEnable($zoneminder->getConfiguration('enabled'));
+    $camera_jeedom->setIsEnable($zoneminder->getIsEnable());
     $camera_jeedom->setConfiguration('ip', $url_parse['host']);
-    $stream = isset($url_parse['path']) ? $url_parse['path'] : config::byKey('path','zoneminder');
+    $stream = isset($url_parse['path']) ? $url_parse['path'] : '';
     $camera_jeedom->setConfiguration('urlStream',  $stream . '/cgi-bin/nph-zms?mode=single&monitor=' . $deviceid . '&user=#username#&pass=#password#');
     $camera_jeedom->setConfiguration('username', config::byKey('user','zoneminder'));
     $camera_jeedom->setConfiguration('password', config::byKey('password','zoneminder'));
@@ -174,64 +154,46 @@ class zoneminder extends eqLogic {
   }
 
   public function sendConf($deviceid,$command) {
+    $auth = zoneminder::login();
+    if ($auth == false) { return; }
+    $addr = config::byKey('addr','zoneminder') . config::byKey('path','zoneminder');
+    $uri = $addr . '/api/monitors/' . $deviceid . '.json?' . $auth;
+    log::add('zoneminder', 'debug', $uri . ' ' . $command);
 
+    $post = 'username=' . config::byKey('user','zoneminder') . '&password=' . config::byKey('password','zoneminder') . '&action=login&view=console';
+    $loginUrl = $addr . '/index.php';
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $uri);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $command);
+    $json_string = curl_exec($ch);
+    log::add('zoneminder', 'debug', $json_string);
+    curl_close($ch);
+  }
 
+  public function login() {
     if (config::byKey('user','zoneminder', '') == '' || config::byKey('password','zoneminder', '') == '') {
-      return;
+      return false;
     }
     $addr = config::byKey('addr','zoneminder') . config::byKey('path','zoneminder');
-    $uri = $addr . '/api/monitors/' . $deviceid . '.json';
 
-    log::add('zoneminder', 'debug', 'SendConf ' . $uri . ' ' . $command);
-
-    $post = 'user=' . config::byKey('user','zoneminder') . '&pass=' . config::byKey('password','zoneminder') . '&action=login&view=console';
+    $post = 'user=' . config::byKey('user','zoneminder') . '&pass=' . config::byKey('password','zoneminder');
     $loginUrl = $addr . '/api/host/login.json';
+    log::add('zoneminder', 'debug', 'login ' . $loginUrl);
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $loginUrl);
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     $json_string = curl_exec($ch);
-
-    log::add('zoneminder', 'debug', $json_string);
-    $parsed_json = json_decode($json_string, true);
-
-    $token = $parsed_json['access_token'];
-    $uri = $uri."?token=$token";
-    log::add('zoneminder', 'debug', 'Retour ' . print_r($uri,true));
-
-    curl_setopt($ch, CURLOPT_URL, $uri);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $command);
-    $json_string = curl_exec($ch);
-
-    log::add('zoneminder', 'debug', 'SendConf' . $json_string);
-
     curl_close($ch);
+    $result = json_decode($json_string, true);
+    log::add('zoneminder', 'debug', 'result' . print_r($result,true));
+    if ($result['apiversion'] == "2.0") {
+      return 'token=' . $result['access_token'];
+    } else {
+      return $result['credentials'];
+    }
   }
-
-  /*public function toHtml($_version = 'dashboard') {
-  	$replace = $this->preToHtml($_version);
-  	$version = jeedom::versionAlias($_version);
-  	if ($this->getDisplay('hideOn' . $version) == 1) {
-  		return '';
-  	}
-  	foreach ($this->getCmd('info') as $cmd) {
-  		$replace['#' . $cmd->getLogicalId() . '_history#'] = '';
-  		$replace['#' . $cmd->getLogicalId() . '_id#'] = $cmd->getId();
-  		if (strrpos($cmd->getLogicalId(), 'time') !== false) {
-  			$replace['#' . $cmd->getLogicalId() . '#'] = substr_replace($cmd->execCmd(), ':', -2, 0);
-  		} else {
-  			$replace['#' . $cmd->getLogicalId() . '#'] = $cmd->execCmd();
-  		}
-  		$replace['#' . $cmd->getLogicalId() . '_collect#'] = $cmd->getCollectDate();
-  		if ($cmd->getIsHistorized() == 1) {
-  			$replace['#' . $cmd->getLogicalId() . '_history#'] = 'history cursor';
-  		}
-  	}
-
-  	$templatename = $this->getConfiguration('type');
-  	return $this->postToHtml($_version, template_replace($replace, getTemplate('core', $version, $templatename, 'zoneminder')));
-  }*/
 }
 
 class zoneminderCmd extends cmd {
