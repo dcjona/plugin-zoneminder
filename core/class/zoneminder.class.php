@@ -132,7 +132,7 @@ class zoneminder extends eqLogic {
     $camera_jeedom->setIsEnable($zoneminder->getIsEnable());
     $camera_jeedom->setConfiguration('ip', $url_parse['host']);
     $stream = isset($url_parse['path']) ? $url_parse['path'] : '';
-    $camera_jeedom->setConfiguration('urlStream',  $stream . '/cgi-bin/nph-zms?mode=single&monitor=' . $deviceid . '&user=#username#&pass=#password#');
+    $camera_jeedom->setConfiguration('urlStream',  $stream . '/zm/cgi-bin/nph-zms?mode=single&monitor=' . $deviceid . '&user=#username#&pass=#password#');
     $camera_jeedom->setConfiguration('username', config::byKey('user','zoneminder'));
     $camera_jeedom->setConfiguration('password', config::byKey('password','zoneminder'));
     $camera_jeedom->setEqType_name('camera');
